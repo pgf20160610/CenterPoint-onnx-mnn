@@ -1,0 +1,63 @@
+# ============================================================
+# CenterPoint C++ inference configuration (ONNX / MNN backends)
+# Used by: centerpoint executable (src/main.cpp)
+# ============================================================
+
+# ---- point cloud range & BEV grid resolution ----
+point_cloud:
+  x_min: -74.88
+  x_max: 74.88
+  y_min: -74.88
+  y_max: 74.88
+  z_min: -2.0
+  z_max: 4.0
+  voxel_size: [0.32, 0.32, 6.0]   # [vx, vy, vz]  vz = z_max - z_min (pillar height)
+  point_dim: 5            # x, y, z, intensity, time_lag
+
+# ---- pillar feature encoder ----
+pillar:
+  max_pillars: 32000
+  max_points_per_pillar: 20
+  feature_num: 10         # 10-dim per-point feature fed to PFE
+  pfe_output_dim: 64
+
+# ---- BEV feature map size (scatter output) ----
+bev:
+  width: 468
+  height: 468
+
+# ---- detection head decode + NMS ----
+postprocess:
+  out_size_factor: 1.0
+  score_threshold: 0.41 # 0.1
+  nms_threshold: 0.7
+  input_nms_max_size: 4096
+  output_nms_max_size: 500
+  output_h: 468
+  output_w: 468
+
+# ---- RPN output tensor names (role -> ONNX/MNN tensor name) ----
+rpn_output_names:
+  reg: "246"
+  height: "250"
+  dim: "264"
+  rot: "258"
+  score: "265"
+  cls: "266"
+
+# ---- model backend & paths ----
+model:
+  backend: onnx                              # onnx | mnn
+  pfe_path: models/pfe_baseline32000.onnx    # for mnn use .mnn paths
+  rpn_path: models/rpn_baseline.onnx
+
+# ---- runtime options ----
+runtime:
+  use_cuda: true          # ONNX Runtime: try CUDA execution provider
+  num_threads: 4          # MNN / ORT intra-op threads
+  save_viz: true          # write BEV PNG next to each .txt result
+
+# ---- input / output ----
+io:
+  data_dir: lidars        # directory containing seq_*.bin (falls back to *.bin)
+  save_dir: output/cpp

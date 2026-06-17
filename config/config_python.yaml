@@ -1,0 +1,64 @@
+# ============================================================
+# CenterPoint Python inference configuration (ONNX backend)
+# Used by: tools/infer_onnx.py
+# ============================================================
+
+# ---- point cloud range & BEV grid resolution ----
+point_cloud:
+  x_min: -74.88
+  x_max: 74.88
+  y_min: -74.88
+  y_max: 74.88
+  z_min: -2.0
+  z_max: 4.0
+  x_step: 0.32
+  y_step: 0.32
+  point_dim: 5            # x, y, z, intensity, time_lag
+
+# ---- pillar feature encoder ----
+pillar:
+  max_pillars: 32000
+  max_points_per_pillar: 20
+  feature_num: 10
+  pfe_output_dim: 64
+
+# ---- BEV feature map size (scatter output) ----
+bev:
+  width: 468
+  height: 468
+
+# ---- detection head decode + NMS ----
+postprocess:
+  out_size_factor: 1.0
+  score_threshold: 0.4 #  0.1
+  nms_threshold: 0.7
+  input_nms_max_size: 4096
+  output_nms_max_size: 500
+  output_h: 468
+  output_w: 468
+
+# ---- RPN output tensor names (role -> ONNX tensor name) ----
+rpn_output_names:
+  reg: "246"
+  height: "250"
+  dim: "264"
+  rot: "258"
+  score: "265"
+  cls: "266"
+
+# ---- model paths ----
+model:
+  pfe_path: models/pfe_baseline32000.onnx
+  rpn_path: models/rpn_baseline.onnx
+
+# ---- ONNX Runtime options ----
+runtime:
+  providers:              # in priority order; unavailable ones are skipped
+    - CUDAExecutionProvider
+    - CPUExecutionProvider
+  save_viz: true
+
+# ---- input / output ----
+io:
+  data_dir: lidars
+  save_dir: output/python
